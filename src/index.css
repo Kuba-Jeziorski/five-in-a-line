@@ -36,10 +36,6 @@
   background-color: red;
 }
 
-.gridItem.occupied {
-  cursor: no-drop;
-}
-
 .gridItemCircle {
   width: 100%;
   height: 100%;
