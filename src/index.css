@@ -29,10 +29,10 @@
   background-color: blue;
 }
 
-.gridItem[occupied="player1"] .gridItemCircle {
+.gridItem[data-occupied="1"] .gridItemCircle {
   background-color: yellow;
 }
-.gridItem[occupied="player2"] .gridItemCircle {
+.gridItem[data-occupied="2"] .gridItemCircle {
   background-color: red;
 }
 

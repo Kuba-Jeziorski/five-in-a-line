@@ -1,55 +1,53 @@
-import React from "react";
+import { MouseEventHandler } from "react";
 import { GridItem } from "./GridItem";
-import { COLUMNS, ROWS } from "../Constants";
+
+type Props = {
+  rowsNumber: number;
+  columnsNumber: number;
+  currentPlayer: string | null;
+  switchTurn: () => void;
+};
 
 export const GridArea = ({
   rowsNumber,
   columnsNumber,
   currentPlayer,
-  setCurrentPlayer,
-}) => {
-  const gridCreation = (rows, columns) => {
+  switchTurn,
+}: Props) => {
+  const gridCreation = (rows: number, columns: number) => {
     let gridItems = [];
 
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < columns; j++) {
-        gridItems.push(
-          <GridItem
-            key={`${i}${j}`}
-            row={i}
-            column={j}
-            currentPlayer={currentPlayer}
-          />
-        );
+        gridItems.push(<GridItem key={`${i}${j}`} row={i} column={j} />);
       }
     }
 
     return gridItems;
   };
 
-  const gridOccupation = (event) => {
+  const gridOccupation: MouseEventHandler<HTMLDivElement> = (event) => {
     const { target } = event;
     const targetItemColumn = Number(
-      target.closest(".gridItem").getAttribute("column")
+      //@ts-expect-error
+      target.closest(".gridItem").getAttribute("data-column")
     );
 
     const allGridItems = document.querySelectorAll(".gridItem");
     const reversedAllGridItems = [...allGridItems].reverse();
 
     for (const item of reversedAllGridItems) {
-      const itemColumn = Number(item.getAttribute("column"));
-      const itemNotOccupied = item.getAttribute("occupied") === null;
+      const itemColumn = Number(item.getAttribute("data-column"));
+      const itemNotOccupied = item.getAttribute("data-occupied") === null;
       const equalColumns = itemColumn === targetItemColumn;
 
       if (equalColumns && itemNotOccupied) {
-        item.setAttribute("occupied", `${currentPlayer}`);
+        item.setAttribute("data-occupied", `${currentPlayer}`);
         break;
       }
     }
 
-    setCurrentPlayer((p) => {
-      return p === "player1" ? "player2" : "player1";
-    });
+    switchTurn();
   };
 
   const gridItems = gridCreation(rowsNumber, columnsNumber);
