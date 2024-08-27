@@ -60,9 +60,9 @@ const isOccupiedWest = (
   }
 };
 
-const fiveHorizontally = () => {
-  return 1;
-};
+// const fiveHorizontally = () => {
+//   return 1;
+// };
 
 export const GridArea = ({
   rowsNumber,
