@@ -42,6 +42,7 @@ function App() {
             columnsNumber={COLUMNS}
             currentPlayer={currentPlayer}
             switchTurn={switchTurn}
+            gameStateFunction={setGameState}
           />
           <button onClick={finshGame}>FINISH</button>
         </>

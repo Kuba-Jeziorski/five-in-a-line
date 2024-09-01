@@ -1,16 +1,14 @@
 import { MouseEventHandler, useState } from "react";
 import { GridItem } from "./GridItem";
 import { directions } from "../utils/directions";
+import { GameState } from "../types";
 
 type Props = {
   rowsNumber: number;
   columnsNumber: number;
   currentPlayer: string | null;
   switchTurn: () => void;
-};
-
-const range = (length: number) => {
-  return Array.from({ length }, (_, i) => i);
+  gameStateFunction: (state: GameState) => void;
 };
 
 type Coordinates = {
@@ -23,6 +21,10 @@ type Direction = ({ x, y }: Coordinates) => {
   y: number;
 };
 
+const range = (length: number) => {
+  return Array.from({ length }, (_, i) => i);
+};
+
 const coordinatesToSpotId = ({ x, y }: Coordinates) => {
   return `${x},${y}`;
 };
@@ -32,6 +34,7 @@ export const GridArea = ({
   columnsNumber,
   currentPlayer,
   switchTurn,
+  gameStateFunction,
 }: Props) => {
   const [occupiedSpots, setOccupiedSpots] = useState<Record<string, string>>(
     {}
@@ -111,7 +114,8 @@ export const GridArea = ({
         ];
 
         if (allCounts.some((c) => c === 5)) {
-          alert(`Player ${currentPlayer} won!`);
+          // alert(`Player ${currentPlayer} won!`);
+          gameStateFunction("ended");
         }
 
         return updatedSpots;
