@@ -1,6 +1,6 @@
 import { MouseEventHandler, useState } from "react";
 import { GridItem } from "./GridItem";
-import { ROWS } from "../constants";
+import { directions } from "../utils/directions";
 
 type Props = {
   rowsNumber: number;
@@ -12,7 +12,13 @@ type Props = {
 const range = (length: number) => {
   return Array.from({ length }, (_, i) => i);
 };
+
 type Coordinates = {
+  x: number;
+  y: number;
+};
+
+type Direction = ({ x, y }: Coordinates) => {
   x: number;
   y: number;
 };
@@ -20,49 +26,6 @@ type Coordinates = {
 const coordinatesToSpotId = ({ x, y }: Coordinates) => {
   return `${x},${y}`;
 };
-
-const minimalX = 0;
-const minimalY = 0;
-const maximalX = 11;
-const maximalY = 8;
-
-type OccupationObject = {
-  [key: string]: string;
-};
-
-const isOccupiedWest = (
-  spotId: string,
-  occupiedSpots: OccupationObject,
-  currentPlayer: string,
-  occupationObj: OccupationObject
-) => {
-  let [x, y] = spotId.split(",");
-
-  const xAsNumber = Number(x);
-  const yAsNumber = Number(y);
-
-  if (xAsNumber === maximalX) {
-    return;
-  }
-
-  const westNeighborKey = `${xAsNumber + 1},${yAsNumber}`;
-
-  if (!(spotId in occupationObj)) {
-    occupationObj[spotId] = currentPlayer;
-  }
-
-  if (
-    occupiedSpots[westNeighborKey] &&
-    occupiedSpots[westNeighborKey] === currentPlayer
-  ) {
-    console.log(`Added element: "${spotId}": "${currentPlayer}"`);
-    occupationObj[spotId] = currentPlayer;
-  }
-};
-
-// const fiveHorizontally = () => {
-//   return 1;
-// };
 
 export const GridArea = ({
   rowsNumber,
@@ -73,6 +36,31 @@ export const GridArea = ({
   const [occupiedSpots, setOccupiedSpots] = useState<Record<string, string>>(
     {}
   );
+
+  const collectInDirection = (
+    { x, y }: Coordinates,
+    player: string,
+    direction: ({ x, y }: Coordinates) => Coordinates
+  ): number => {
+    const pos = direction({ x, y });
+    const key = `${pos.x},${pos.y}`;
+
+    if (occupiedSpots[key] === player) {
+      return 1 + collectInDirection({ x: pos.x, y: pos.y }, player, direction);
+    }
+
+    return 0;
+  };
+
+  const checkLine = (
+    { x, y }: Coordinates,
+    player: string,
+    [d1, d2]: [Direction, Direction]
+  ) => {
+    return [d1, d2]
+      .map((direction) => collectInDirection({ x, y }, player, direction))
+      .reduce((total, next) => total + next, 1);
+  };
 
   const gridOccupation: MouseEventHandler<HTMLDivElement> = (event) => {
     const { target } = event;
@@ -86,21 +74,45 @@ export const GridArea = ({
     }
 
     //@ts-expect-error
-    const x = target.getAttribute("data-column");
+    const x = Number(target.getAttribute("data-column"));
     //@ts-expect-error
-    const y = target.getAttribute("data-row");
+    const y = Number(target.getAttribute("data-row"));
 
     const spotId = coordinatesToSpotId({ x, y });
-
-    const occupationObj = {};
 
     setOccupiedSpots((prevOccupiedSpots) => {
       if (prevOccupiedSpots[spotId]) {
         return prevOccupiedSpots;
       } else {
         const updatedSpots = { ...prevOccupiedSpots, [spotId]: currentPlayer };
-        // return { ...p, [spotId]: currentPlayer };
-        isOccupiedWest(spotId, occupiedSpots, currentPlayer, occupationObj);
+
+        const countVertical = checkLine({ x, y }, currentPlayer, [
+          directions.N,
+          directions.S,
+        ]);
+        const countHorizontal = checkLine({ x, y }, currentPlayer, [
+          directions.W,
+          directions.E,
+        ]);
+        const countDiagonalNW = checkLine({ x, y }, currentPlayer, [
+          directions.N,
+          directions.S,
+        ]);
+        const countDiagonalNE = checkLine({ x, y }, currentPlayer, [
+          directions.N,
+          directions.S,
+        ]);
+
+        const allCounts = [
+          countVertical,
+          countHorizontal,
+          countDiagonalNW,
+          countDiagonalNE,
+        ];
+
+        if (allCounts.some((c) => c === 5)) {
+          alert(`Player ${currentPlayer} won!`);
+        }
 
         return updatedSpots;
       }
