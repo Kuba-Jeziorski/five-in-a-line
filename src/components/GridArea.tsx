@@ -95,12 +95,12 @@ export const GridArea = ({
           directions.E,
         ]);
         const countDiagonalNW = checkLine({ x, y }, currentPlayer, [
-          directions.N,
-          directions.S,
+          directions.NW,
+          directions.SE,
         ]);
         const countDiagonalNE = checkLine({ x, y }, currentPlayer, [
-          directions.N,
-          directions.S,
+          directions.NE,
+          directions.SW,
         ]);
 
         const allCounts = [
