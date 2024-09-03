@@ -1,4 +1,4 @@
-import { MouseEventHandler, useState } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 import { GridItem } from "./GridItem";
 import { directions } from "../utils/directions";
 import { GameState } from "../types";
@@ -39,6 +39,13 @@ export const GridArea = ({
   const [occupiedSpots, setOccupiedSpots] = useState<Record<string, string>>(
     {}
   );
+  const [gameWon, setGameWon] = useState(false);
+
+  useEffect(() => {
+    if (gameWon) {
+      gameStateFunction("ended");
+    }
+  }, [gameWon, gameStateFunction]);
 
   const collectInDirection = (
     { x, y }: Coordinates,
@@ -89,38 +96,37 @@ export const GridArea = ({
       } else {
         const updatedSpots = { ...prevOccupiedSpots, [spotId]: currentPlayer };
 
-        const countVertical = checkLine({ x, y }, currentPlayer, [
-          directions.N,
-          directions.S,
-        ]);
-        const countHorizontal = checkLine({ x, y }, currentPlayer, [
-          directions.W,
-          directions.E,
-        ]);
-        const countDiagonalNW = checkLine({ x, y }, currentPlayer, [
-          directions.NW,
-          directions.SE,
-        ]);
-        const countDiagonalNE = checkLine({ x, y }, currentPlayer, [
-          directions.NE,
-          directions.SW,
-        ]);
-
-        const allCounts = [
-          countVertical,
-          countHorizontal,
-          countDiagonalNW,
-          countDiagonalNE,
-        ];
-
-        if (allCounts.some((c) => c === 5)) {
-          // alert(`Player ${currentPlayer} won!`);
-          gameStateFunction("ended");
-        }
-
         return updatedSpots;
       }
     });
+
+    const countVertical = checkLine({ x, y }, currentPlayer, [
+      directions.N,
+      directions.S,
+    ]);
+    const countHorizontal = checkLine({ x, y }, currentPlayer, [
+      directions.W,
+      directions.E,
+    ]);
+    const countDiagonalNW = checkLine({ x, y }, currentPlayer, [
+      directions.NW,
+      directions.SE,
+    ]);
+    const countDiagonalNE = checkLine({ x, y }, currentPlayer, [
+      directions.NE,
+      directions.SW,
+    ]);
+
+    const allCounts = [
+      countVertical,
+      countHorizontal,
+      countDiagonalNW,
+      countDiagonalNE,
+    ];
+
+    if (allCounts.some((count) => count === 5)) {
+      setGameWon(true);
+    }
 
     switchTurn();
   };
