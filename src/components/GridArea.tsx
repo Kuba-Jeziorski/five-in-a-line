@@ -2,6 +2,7 @@ import { MouseEventHandler, useEffect, useState } from "react";
 import { GridItem } from "./GridItem";
 import { directions } from "../utils/directions";
 import { GameState } from "../types";
+import { ROWS } from "../constants";
 
 type Props = {
   rowsNumber: number;
@@ -21,12 +22,62 @@ type Direction = ({ x, y }: Coordinates) => {
   y: number;
 };
 
+type OccupiedSpots = Record<string, string>;
+
 const range = (length: number) => {
   return Array.from({ length }, (_, i) => i);
 };
 
 const coordinatesToSpotId = ({ x, y }: Coordinates) => {
   return `${x},${y}`;
+};
+
+const spotIdToCoordinates = (spotId: string) => {
+  const [x, y] = spotId.split(",");
+  return { x: Number(x), y: Number(y) };
+};
+
+const firstAvailableCell = (occupiedSpots: OccupiedSpots, x: number) => {
+  const busySpots = Object.keys(occupiedSpots)
+    .filter((spot) => spot.startsWith(`${x},`))
+    .map(spotIdToCoordinates)
+    .sort((a, b) => a.y - b.y);
+
+  const firstBusyY = busySpots[0]?.y ?? null;
+
+  if (firstBusyY === null) {
+    return { x, y: ROWS - 1 };
+  }
+
+  if (firstBusyY === 0) {
+    return null;
+  }
+
+  return { x, y: firstBusyY - 1 };
+};
+
+const collectInDirection = (
+  occupiedSpots: OccupiedSpots,
+  { x, y }: Coordinates,
+  player: string,
+  direction: ({ x, y }: Coordinates) => Coordinates
+): number => {
+  const pos = direction({ x, y });
+  const key = `${pos.x},${pos.y}`;
+
+  if (occupiedSpots[key] === player) {
+    return (
+      1 +
+      collectInDirection(
+        occupiedSpots,
+        { x: pos.x, y: pos.y },
+        player,
+        direction
+      )
+    );
+  }
+
+  return 0;
 };
 
 export const GridArea = ({
@@ -36,9 +87,7 @@ export const GridArea = ({
   switchTurn,
   gameStateFunction,
 }: Props) => {
-  const [occupiedSpots, setOccupiedSpots] = useState<Record<string, string>>(
-    {}
-  );
+  const [occupiedSpots, setOccupiedSpots] = useState<OccupiedSpots>({});
   const [gameWon, setGameWon] = useState(false);
 
   useEffect(() => {
@@ -47,28 +96,16 @@ export const GridArea = ({
     }
   }, [gameWon, gameStateFunction]);
 
-  const collectInDirection = (
-    { x, y }: Coordinates,
-    player: string,
-    direction: ({ x, y }: Coordinates) => Coordinates
-  ): number => {
-    const pos = direction({ x, y });
-    const key = `${pos.x},${pos.y}`;
-
-    if (occupiedSpots[key] === player) {
-      return 1 + collectInDirection({ x: pos.x, y: pos.y }, player, direction);
-    }
-
-    return 0;
-  };
-
   const checkLine = (
+    occupiedSpots: OccupiedSpots,
     { x, y }: Coordinates,
     player: string,
-    [d1, d2]: [Direction, Direction]
+    [d1, d2]: Readonly<[Direction, Direction]>
   ) => {
     return [d1, d2]
-      .map((direction) => collectInDirection({ x, y }, player, direction))
+      .map((direction) =>
+        collectInDirection(occupiedSpots, { x, y }, player, direction)
+      )
       .reduce((total, next) => total + next, 1);
   };
 
@@ -88,7 +125,21 @@ export const GridArea = ({
     //@ts-expect-error
     const y = Number(target.getAttribute("data-row"));
 
-    const spotId = coordinatesToSpotId({ x, y });
+    const validPosition = firstAvailableCell(occupiedSpots, x);
+
+    if (validPosition === null) {
+      return;
+    }
+
+    // const spotId = coordinatesToSpotId({ x, y });
+    const spotId = coordinatesToSpotId(validPosition);
+
+    const lines = [
+      [directions.N, directions.S],
+      [directions.W, directions.E],
+      [directions.NW, directions.SE],
+      [directions.NE, directions.SW],
+    ] as const;
 
     setOccupiedSpots((prevOccupiedSpots) => {
       if (prevOccupiedSpots[spotId]) {
@@ -100,32 +151,13 @@ export const GridArea = ({
       }
     });
 
-    const countVertical = checkLine({ x, y }, currentPlayer, [
-      directions.N,
-      directions.S,
-    ]);
-    const countHorizontal = checkLine({ x, y }, currentPlayer, [
-      directions.W,
-      directions.E,
-    ]);
-    const countDiagonalNW = checkLine({ x, y }, currentPlayer, [
-      directions.NW,
-      directions.SE,
-    ]);
-    const countDiagonalNE = checkLine({ x, y }, currentPlayer, [
-      directions.NE,
-      directions.SW,
-    ]);
-
-    const allCounts = [
-      countVertical,
-      countHorizontal,
-      countDiagonalNW,
-      countDiagonalNE,
-    ];
-
-    if (allCounts.some((count) => count === 5)) {
+    if (
+      lines.some(
+        (line) => checkLine(occupiedSpots, { x, y }, currentPlayer, line) === 5
+      )
+    ) {
       setGameWon(true);
+      return;
     }
 
     switchTurn();
