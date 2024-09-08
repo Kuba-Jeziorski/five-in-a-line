@@ -1,28 +1,8 @@
 import { MouseEventHandler, useEffect, useState } from "react";
 import { GridItem } from "./GridItem";
 import { directions } from "../utils/directions";
-import { GameState } from "../types";
+import { Coordinates, Direction, GridAreaProps, OccupiedSpots } from "../types";
 import { ROWS } from "../constants";
-
-type Props = {
-  rowsNumber: number;
-  columnsNumber: number;
-  currentPlayer: string | null;
-  switchTurn: () => void;
-  gameStateFunction: (state: GameState) => void;
-};
-
-type Coordinates = {
-  x: number;
-  y: number;
-};
-
-type Direction = ({ x, y }: Coordinates) => {
-  x: number;
-  y: number;
-};
-
-type OccupiedSpots = Record<string, string>;
 
 const range = (length: number) => {
   return Array.from({ length }, (_, i) => i);
@@ -86,7 +66,7 @@ export const GridArea = ({
   currentPlayer,
   switchTurn,
   gameStateFunction,
-}: Props) => {
+}: GridAreaProps) => {
   const [occupiedSpots, setOccupiedSpots] = useState<OccupiedSpots>({});
   const [gameWon, setGameWon] = useState(false);
 
@@ -131,7 +111,6 @@ export const GridArea = ({
       return;
     }
 
-    // const spotId = coordinatesToSpotId({ x, y });
     const spotId = coordinatesToSpotId(validPosition);
 
     const lines = [

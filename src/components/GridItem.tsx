@@ -1,10 +1,6 @@
-type Props = {
-  row: number;
-  column: number;
-  occupied: string | null;
-};
+import { GridItemProps } from "../types";
 
-export const GridItem = ({ row, column, occupied }: Props) => {
+export const GridItem = ({ row, column, occupied }: GridItemProps) => {
   return (
     <div
       className="gridItem"
