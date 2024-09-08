@@ -1,7 +1,0 @@
-List of function that needs to be tested:
-1) gameStateToPlayerId
-2) range
-3) coordinatesToSpotId
-4) spotIdToCoordinates
-5) FirstAvailableCell
-6) collectionInDirection
