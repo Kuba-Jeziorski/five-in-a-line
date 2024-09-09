@@ -4,20 +4,20 @@ import { directions } from "../utils/directions";
 import { Coordinates, Direction, GridAreaProps, OccupiedSpots } from "../types";
 import { ROWS } from "../constants";
 
-const range = (length: number) => {
+export const range = (length: number) => {
   return Array.from({ length }, (_, i) => i);
 };
 
-const coordinatesToSpotId = ({ x, y }: Coordinates) => {
+export const coordinatesToSpotId = ({ x, y }: Coordinates) => {
   return `${x},${y}`;
 };
 
-const spotIdToCoordinates = (spotId: string) => {
+export const spotIdToCoordinates = (spotId: string) => {
   const [x, y] = spotId.split(",");
   return { x: Number(x), y: Number(y) };
 };
 
-const firstAvailableCell = (occupiedSpots: OccupiedSpots, x: number) => {
+export const firstAvailableCell = (occupiedSpots: OccupiedSpots, x: number) => {
   const busySpots = Object.keys(occupiedSpots)
     .filter((spot) => spot.startsWith(`${x},`))
     .map(spotIdToCoordinates)
@@ -75,6 +75,8 @@ export const GridArea = ({
       gameStateFunction("ended");
     }
   }, [gameWon, gameStateFunction]);
+
+  console.log(range(5));
 
   const checkLine = (
     occupiedSpots: OccupiedSpots,
