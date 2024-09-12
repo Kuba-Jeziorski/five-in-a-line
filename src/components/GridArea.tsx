@@ -1,24 +1,52 @@
 import { MouseEventHandler, useEffect, useState } from "react";
 import { GridItem } from "./GridItem";
 import { directions } from "../utils/directions";
-import { Coordinates, Direction, GridAreaProps, OccupiedSpots } from "../types";
+import {
+  Coordinates,
+  CoordinateString,
+  Direction,
+  GridAreaProps,
+  OccupiedSpots,
+  PlayerId,
+} from "../types";
 import { ROWS } from "../constants";
 
 export const range = (length: number) => {
-  return Array.from({ length }, (_, i) => i);
+  if (length >= 0) {
+    return Array.from({ length }, (_, i) => i);
+  }
+  throw new Error(`Length has to be more or equal to 0`);
 };
 
-export const coordinatesToSpotId = ({ x, y }: Coordinates) => {
-  return `${x},${y}`;
+export const coordinatesToSpotId = ({
+  x,
+  y,
+}: Coordinates): CoordinateString => {
+  //TODO: add throws
+  return `${x},${y}` as CoordinateString;
 };
 
-export const spotIdToCoordinates = (spotId: string) => {
+export const spotIdToCoordinates = (spotId: CoordinateString) => {
   const [x, y] = spotId.split(",");
   return { x: Number(x), y: Number(y) };
 };
 
+export const createOccupiedSpots = (obj: Record<string, string> = {}) => {
+  return obj as OccupiedSpots;
+};
+
+// const x = new Map<CoordinateString, PlayerId>();
+// const keys = x.keys();
+// const y = new Map(x.entries());
+
+0.0 === 0.0;
+
 export const firstAvailableCell = (occupiedSpots: OccupiedSpots, x: number) => {
-  const busySpots = Object.keys(occupiedSpots)
+  const keys = Object.keys(occupiedSpots) as CoordinateString[];
+  if (!keys.every((key) => key.match(/\d+,\d+/))) {
+    throw new Error(`Some keys don't match the pattern.`);
+  }
+  const busySpots = keys
     .filter((spot) => spot.startsWith(`${x},`))
     .map(spotIdToCoordinates)
     .sort((a, b) => a.y - b.y);
@@ -43,7 +71,7 @@ const collectInDirection = (
   direction: ({ x, y }: Coordinates) => Coordinates
 ): number => {
   const pos = direction({ x, y });
-  const key = `${pos.x},${pos.y}`;
+  const key = coordinatesToSpotId(pos);
 
   if (occupiedSpots[key] === player) {
     return (
@@ -67,7 +95,9 @@ export const GridArea = ({
   switchTurn,
   gameStateFunction,
 }: GridAreaProps) => {
-  const [occupiedSpots, setOccupiedSpots] = useState<OccupiedSpots>({});
+  const [occupiedSpots, setOccupiedSpots] = useState<OccupiedSpots>(
+    createOccupiedSpots()
+  );
   const [gameWon, setGameWon] = useState(false);
 
   useEffect(() => {
@@ -75,8 +105,6 @@ export const GridArea = ({
       gameStateFunction("ended");
     }
   }, [gameWon, gameStateFunction]);
-
-  console.log(range(5));
 
   const checkLine = (
     occupiedSpots: OccupiedSpots,
