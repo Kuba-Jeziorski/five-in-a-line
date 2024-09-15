@@ -24,12 +24,8 @@ export type GridItemProps = {
   occupied: string | null;
 };
 
-export type CoordinateString = `${number},${number}` & {
-  _brand: `coordinate string`;
-};
+export type CoordinateString = `${number},${number}`;
 
 export type PlayerId = "1" | "2";
 
-export type OccupiedSpots = Record<CoordinateString, PlayerId> & {
-  _brand: `occupied spots`;
-};
+export type OccupiedSpots = Record<CoordinateString, PlayerId>;

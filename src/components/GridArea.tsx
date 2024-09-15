@@ -22,13 +22,18 @@ export const coordinatesToSpotId = ({
   x,
   y,
 }: Coordinates): CoordinateString => {
-  //TODO: add throws
-  return `${x},${y}` as CoordinateString;
+  if (x >= 0 && y >= 0) {
+    return `${x},${y}` as CoordinateString;
+  }
+  throw new Error(`Coordinates are outside the playing field!`);
 };
 
 export const spotIdToCoordinates = (spotId: CoordinateString) => {
   const [x, y] = spotId.split(",");
-  return { x: Number(x), y: Number(y) };
+  if (Number(x) >= 0 && Number(y) >= 0) {
+    return { x: Number(x), y: Number(y) };
+  }
+  throw new Error(`Coordinates are outside the playing field!`);
 };
 
 export const createOccupiedSpots = (obj: Record<string, string> = {}) => {
@@ -38,8 +43,6 @@ export const createOccupiedSpots = (obj: Record<string, string> = {}) => {
 // const x = new Map<CoordinateString, PlayerId>();
 // const keys = x.keys();
 // const y = new Map(x.entries());
-
-0.0 === 0.0;
 
 export const firstAvailableCell = (occupiedSpots: OccupiedSpots, x: number) => {
   const keys = Object.keys(occupiedSpots) as CoordinateString[];
