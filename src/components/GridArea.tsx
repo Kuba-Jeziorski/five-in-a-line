@@ -36,16 +36,16 @@ export const spotIdToCoordinates = (spotId: CoordinateString) => {
   throw new Error(`Coordinates are outside the playing field!`);
 };
 
-export const createOccupiedSpots = (obj: Record<string, string> = {}) => {
-  return obj as OccupiedSpots;
-};
+// export const createOccupiedSpots = (obj: Record<string, string> = {}) => {
+//   return obj as OccupiedSpots;
+// };
 
 // const x = new Map<CoordinateString, PlayerId>();
 // const keys = x.keys();
 // const y = new Map(x.entries());
 
 export const firstAvailableCell = (occupiedSpots: OccupiedSpots, x: number) => {
-  const keys = Object.keys(occupiedSpots) as CoordinateString[];
+  const keys = [...occupiedSpots.keys()];
   if (!keys.every((key) => key.match(/\d+,\d+/))) {
     throw new Error(`Some keys don't match the pattern.`);
   }
@@ -74,21 +74,22 @@ const collectInDirection = (
   direction: ({ x, y }: Coordinates) => Coordinates
 ): number => {
   const pos = direction({ x, y });
-  const key = coordinatesToSpotId(pos);
-
-  if (occupiedSpots[key] === player) {
-    return (
-      1 +
-      collectInDirection(
-        occupiedSpots,
-        { x: pos.x, y: pos.y },
-        player,
-        direction
-      )
-    );
+  try {
+    const key = coordinatesToSpotId(pos);
+    if (occupiedSpots.get(key) === player) {
+      return (
+        1 +
+        collectInDirection(
+          occupiedSpots,
+          { x: pos.x, y: pos.y },
+          player,
+          direction
+        )
+      );
+    }
+  } finally {
+    return 0;
   }
-
-  return 0;
 };
 
 export const GridArea = ({
@@ -98,9 +99,7 @@ export const GridArea = ({
   switchTurn,
   gameStateFunction,
 }: GridAreaProps) => {
-  const [occupiedSpots, setOccupiedSpots] = useState<OccupiedSpots>(
-    createOccupiedSpots()
-  );
+  const [occupiedSpots, setOccupiedSpots] = useState<OccupiedSpots>(new Map());
   const [gameWon, setGameWon] = useState(false);
 
   useEffect(() => {
@@ -154,11 +153,12 @@ export const GridArea = ({
     ] as const;
 
     setOccupiedSpots((prevOccupiedSpots) => {
-      if (prevOccupiedSpots[spotId]) {
+      if (prevOccupiedSpots.get(spotId)) {
         return prevOccupiedSpots;
       } else {
-        const updatedSpots = { ...prevOccupiedSpots, [spotId]: currentPlayer };
-
+        // const updatedSpots = { ...prevOccupiedSpots, [spotId]: currentPlayer };
+        const updatedSpots = new Map(prevOccupiedSpots);
+        updatedSpots.set(spotId, currentPlayer);
         return updatedSpots;
       }
     });
@@ -185,9 +185,9 @@ export const GridArea = ({
                 key={`${row}-${column}`}
                 row={row}
                 column={column}
-                occupied={
-                  occupiedSpots[coordinatesToSpotId({ x: column, y: row })]
-                }
+                occupied={occupiedSpots.get(
+                  coordinatesToSpotId({ x: column, y: row })
+                )}
               />
             );
           });
