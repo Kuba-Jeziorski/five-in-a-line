@@ -11,7 +11,7 @@ export const directions = {
   E: ({ x, y }: DirectionProps) => ({ x: x + 1, y }),
 
   NE: ({ x, y }: DirectionProps) => ({ x: x + 1, y: y - 1 }),
-  SW: ({ x, y }: DirectionProps) => ({ x: x + 1, y: y - 1 }),
+  SW: ({ x, y }: DirectionProps) => ({ x: x - 1, y: y + 1 }),
 
   SE: ({ x, y }: DirectionProps) => ({ x: x + 1, y: y + 1 }),
   NW: ({ x, y }: DirectionProps) => ({ x: x - 1, y: y - 1 }),

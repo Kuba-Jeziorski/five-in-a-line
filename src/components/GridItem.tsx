@@ -8,7 +8,17 @@ export const GridItem = ({ row, column, occupied }: GridItemProps) => {
       data-column={column}
       data-occupied={occupied}
     >
-      <div className="gridItemCircle"></div>
+      <div className="gridItemCircle">
+        <p
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {column}, {row}
+        </p>
+      </div>
     </div>
   );
 };

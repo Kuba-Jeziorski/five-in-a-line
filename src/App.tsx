@@ -3,6 +3,7 @@ import { GridArea } from "./components/GridArea";
 import { COLUMNS, ROWS } from "./constants";
 import { GameState } from "./types";
 import { gameStateToPlayerId } from "./utils/gameStateToPlayerId";
+import { StartComponent } from "./components/StartComponent";
 
 function App() {
   const [gameState, setGameState] = useState<GameState>("pending");
@@ -20,10 +21,6 @@ function App() {
     }
   };
 
-  const finshGame = () => {
-    setGameState("ended");
-  };
-
   const gameIsPending = gameState === "pending";
   const gameIsStarted =
     gameState === "player1-turn" || gameState === "player2-turn";
@@ -33,7 +30,11 @@ function App() {
 
   return (
     <>
-      {gameIsPending && <button onClick={startGame}>START</button>}
+      {gameIsPending && (
+        <StartComponent>
+          <button onClick={startGame}>START</button>
+        </StartComponent>
+      )}
 
       {gameIsStarted && (
         <>
@@ -44,7 +45,6 @@ function App() {
             switchTurn={switchTurn}
             gameStateFunction={setGameState}
           />
-          <button onClick={finshGame}>FINISH</button>
         </>
       )}
 

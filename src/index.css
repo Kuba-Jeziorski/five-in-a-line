@@ -3,6 +3,7 @@
   --color-white: #fff;
 
   --distance-12: 12px;
+  --distance-20: 20px;
 }
 
 * {
@@ -32,6 +33,7 @@
 .gridItem[data-occupied="1"] .gridItemCircle {
   background-color: yellow;
 }
+
 .gridItem[data-occupied="2"] .gridItemCircle {
   background-color: red;
 }
@@ -42,4 +44,14 @@
   border-radius: 50%;
   background-color: var(--color-white);
   pointer-events: none;
+}
+
+.startWrapper {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--distance-20);
+  max-width: 500px;
+  text-align: center;
+  margin: 0 auto;
 }

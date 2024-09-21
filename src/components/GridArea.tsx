@@ -25,7 +25,7 @@ export const coordinatesToSpotId = ({
   if (x >= 0 && y >= 0) {
     return `${x},${y}` as CoordinateString;
   }
-  throw new Error(`Coordinates are outside the playing field!`);
+  throw new Error(`Coordinates are outside the playing field! (1)`);
 };
 
 export const spotIdToCoordinates = (spotId: CoordinateString) => {
@@ -33,16 +33,8 @@ export const spotIdToCoordinates = (spotId: CoordinateString) => {
   if (Number(x) >= 0 && Number(y) >= 0) {
     return { x: Number(x), y: Number(y) };
   }
-  throw new Error(`Coordinates are outside the playing field!`);
+  throw new Error(`Coordinates are outside the playing field! (2)`);
 };
-
-// export const createOccupiedSpots = (obj: Record<string, string> = {}) => {
-//   return obj as OccupiedSpots;
-// };
-
-// const x = new Map<CoordinateString, PlayerId>();
-// const keys = x.keys();
-// const y = new Map(x.entries());
 
 export const firstAvailableCell = (occupiedSpots: OccupiedSpots, x: number) => {
   const keys = [...occupiedSpots.keys()];
@@ -76,6 +68,7 @@ const collectInDirection = (
   const pos = direction({ x, y });
   try {
     const key = coordinatesToSpotId(pos);
+    console.log(pos);
     if (occupiedSpots.get(key) === player) {
       return (
         1 +
@@ -114,6 +107,11 @@ export const GridArea = ({
     player: string,
     [d1, d2]: Readonly<[Direction, Direction]>
   ) => {
+    console.log(
+      [d1, d2].map((direction) =>
+        collectInDirection(occupiedSpots, { x, y }, player, direction)
+      )
+    );
     return [d1, d2]
       .map((direction) =>
         collectInDirection(occupiedSpots, { x, y }, player, direction)
@@ -134,10 +132,13 @@ export const GridArea = ({
 
     //@ts-expect-error
     const x = Number(target.getAttribute("data-column"));
-    //@ts-expect-error
-    const y = Number(target.getAttribute("data-row"));
+    // @ ts-expect-error
+    // const y = Number(target.getAttribute("data-row"));
 
     const validPosition = firstAvailableCell(occupiedSpots, x);
+
+    // @ ts-expect-error
+    const y = validPosition?.y;
 
     if (validPosition === null) {
       return;
@@ -156,20 +157,22 @@ export const GridArea = ({
       if (prevOccupiedSpots.get(spotId)) {
         return prevOccupiedSpots;
       } else {
-        // const updatedSpots = { ...prevOccupiedSpots, [spotId]: currentPlayer };
         const updatedSpots = new Map(prevOccupiedSpots);
         updatedSpots.set(spotId, currentPlayer);
         return updatedSpots;
       }
     });
 
-    if (
-      lines.some(
-        (line) => checkLine(occupiedSpots, { x, y }, currentPlayer, line) === 5
-      )
-    ) {
-      setGameWon(true);
-      return;
+    if (typeof y === "number") {
+      if (
+        lines.some(
+          (line) =>
+            checkLine(occupiedSpots, { x, y }, currentPlayer, line) === 5
+        )
+      ) {
+        setGameWon(true);
+        return;
+      }
     }
 
     switchTurn();
