@@ -4,6 +4,7 @@ import { COLUMNS, ROWS } from "./constants";
 import { GameState } from "./types";
 import { gameStateToPlayerId } from "./utils/gameStateToPlayerId";
 import { StartComponent } from "./components/StartComponent";
+import { FinishComponent } from "./components/FinishComponent";
 
 function App() {
   const [gameState, setGameState] = useState<GameState>("pending");
@@ -48,7 +49,7 @@ function App() {
         </>
       )}
 
-      {gameIsFinished && <h1>END OF GAME</h1>}
+      {gameIsFinished && <FinishComponent />}
     </>
   );
 }

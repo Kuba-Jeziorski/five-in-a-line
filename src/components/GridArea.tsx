@@ -68,7 +68,6 @@ const collectInDirection = (
   const pos = direction({ x, y });
   try {
     const key = coordinatesToSpotId(pos);
-    console.log(pos);
     if (occupiedSpots.get(key) === player) {
       return (
         1 +
@@ -80,9 +79,10 @@ const collectInDirection = (
         )
       );
     }
-  } finally {
-    return 0;
+  } catch (e) {
+    console.log(e);
   }
+  return 0;
 };
 
 export const GridArea = ({
@@ -107,11 +107,6 @@ export const GridArea = ({
     player: string,
     [d1, d2]: Readonly<[Direction, Direction]>
   ) => {
-    console.log(
-      [d1, d2].map((direction) =>
-        collectInDirection(occupiedSpots, { x, y }, player, direction)
-      )
-    );
     return [d1, d2]
       .map((direction) =>
         collectInDirection(occupiedSpots, { x, y }, player, direction)
@@ -133,7 +128,6 @@ export const GridArea = ({
     //@ts-expect-error
     const x = Number(target.getAttribute("data-column"));
     // @ ts-expect-error
-    // const y = Number(target.getAttribute("data-row"));
 
     const validPosition = firstAvailableCell(occupiedSpots, x);
 
