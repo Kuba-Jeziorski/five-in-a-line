@@ -30,3 +30,5 @@ export type PlayerId = "1" | "2";
 
 // export type OccupiedSpots = Record<CoordinateString, PlayerId>;
 export type OccupiedSpots = Map<CoordinateString, PlayerId>;
+
+export type Winner = { winner: string };

@@ -1,7 +1,9 @@
-export const FinishComponent = () => {
+import { Winner } from "../types";
+
+export const FinishComponent = ({ winner }: Winner) => {
   return (
     <div className="startWrapper">
-      <h1>Player "a" won!</h1>
+      <h1>{winner} won!</h1>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GridArea } from "./components/GridArea";
 import { COLUMNS, ROWS } from "./constants";
 import { GameState } from "./types";
@@ -8,6 +8,17 @@ import { FinishComponent } from "./components/FinishComponent";
 
 function App() {
   const [gameState, setGameState] = useState<GameState>("pending");
+  const [winner, setWinner] = useState("");
+
+  useEffect(() => {
+    if (gameState === "player1-turn") {
+      setWinner((prev) => (prev = "Player1"));
+    } else if (gameState === "player2-turn") {
+      setWinner((prev) => (prev = "Player2"));
+    } else {
+      return;
+    }
+  }, [gameState, winner]);
 
   const startGame = () => {
     setGameState("player1-turn");
@@ -49,7 +60,7 @@ function App() {
         </>
       )}
 
-      {gameIsFinished && <FinishComponent />}
+      {gameIsFinished && <FinishComponent winner={winner} />}
     </>
   );
 }
